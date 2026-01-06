@@ -1,0 +1,8 @@
+{
+  "name": "Lente Android Project Dashboard",
+  "description": "An interactive dashboard and simulation environment for the Lente Android app, showcasing call interception and WhatsApp scraping logic.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
