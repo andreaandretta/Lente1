@@ -17,23 +17,18 @@ jobs:
         distribution: "temurin"
         cache: gradle
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
     - name: Decode keystore
-      run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > lente-release.jks 2>/dev/null || echo "No keystore secret"
+      run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > lente-release.jks 2>/dev/null || echo "No keystore"
+      continue-on-error: true
 
     - name: Grant execute permission
       run: chmod +x gradlew
 
-    - name: Check Gradle tasks
-      run: ./gradlew tasks --all | grep -i apk || true
-
     - name: Build Debug APK
-      run: |
-        set -x
-        ./gradlew assembleDebug --stacktrace
-        echo "Build completed with exit code: $?"
-        echo "Looking for APKs..."
-        find . -name "*.apk" -type f 2>/dev/null
-        ls -laR app/build/outputs/ 2>/dev/null || echo "No outputs directory"
+      run: ./gradlew assembleDebug
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
