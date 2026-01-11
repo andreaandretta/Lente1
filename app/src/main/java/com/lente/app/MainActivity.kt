@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
                 super.onCallStateChanged(state, phoneNumber)
                 when (state) {
                     TelephonyManager.CALL_STATE_RINGING -> {
-                        Toast.makeText(this@MainActivity, "CHIAMATA RILEVATA!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "CHIAMATA RILEVATA! LENTE ATTIVA", Toast.LENGTH_LONG).show()
                     }
                 }
             }
