@@ -67,7 +67,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+        val readPhoneState = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+        val readCallLog = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
+        return readPhoneState && readCallLog
     }
 
     private fun requestPermissions() {
@@ -98,7 +100,38 @@ class MainActivity : AppCompatActivity() {
                 super.onCallStateChanged(state, phoneNumber)
                 when (state) {
                     TelephonyManager.CALL_STATE_RINGING -> {
-                        Toast.makeText(this@MainActivity, "CHIAMATA RILEVATA!", Toast.LENGTH_SHORT).show()
+                        // Check for READ_CALL_LOG permission (required on Android 9+)
+                        val hasCallLogPermission = ContextCompat.checkSelfPermission(
+                            this@MainActivity,
+                            Manifest.permission.READ_CALL_LOG
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (hasCallLogPermission && !phoneNumber.isNullOrEmpty()) {
+                            // Capture the incoming number
+                            val incomingNumber = phoneNumber
+
+                            // Send the number to the WebView
+                            runOnUiThread {
+                                webView.evaluateJavascript(
+                                    "window.handleIncomingCall('$incomingNumber')",
+                                    null
+                                )
+                            }
+
+                            // Update Toast to show the number
+                            Toast.makeText(
+                                this@MainActivity,
+                                "CHIAMATA DA: $incomingNumber",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            // Fallback if permission is missing or number is null
+                            Toast.makeText(
+                                this@MainActivity,
+                                "CHIAMATA RILEVATA!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
