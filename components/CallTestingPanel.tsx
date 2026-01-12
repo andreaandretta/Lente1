@@ -2,15 +2,15 @@
 import React, { useState } from 'react';
 
 /**
- * CallTestingPanel - Componente per testare le chiamate in arrivo
+ * CallTestingPanel - Componente per testare le chiamate in arrivo/uscita
  *
- * Questo componente permette di simulare chiamate in arrivo per testare
+ * Questo componente permette di simulare chiamate per testare
  * il sistema senza bisogno di un telefono reale o emulatore Android.
  *
  * UTILIZZO IN DEV MODE:
  * - Inserisci un numero di telefono nel formato +39...
- * - Clicca "Simula Chiamata"
- * - Verrà chiamata window.handleIncomingCall() come farebbe Android
+ * - Clicca "Simula Incoming" o "Simula Outgoing"
+ * - Verrà chiamata window.handleIncomingCall() o window.handleOutgoingCall()
  *
  * IN PRODUZIONE:
  * Questo pannello viene nascosto automaticamente quando NODE_ENV !== 'development'
@@ -25,6 +25,16 @@ export const CallTestingPanel: React.FC = () => {
     } else {
       console.error('[TEST] window.handleIncomingCall is not defined!');
       alert('ERROR: window.handleIncomingCall is not defined. Make sure IncomingCallHandler is mounted.');
+    }
+  };
+
+  const simulateOutgoingCall = () => {
+    if (typeof window.handleOutgoingCall === 'function') {
+      console.log('[TEST] Simulating outgoing call to:', testNumber);
+      window.handleOutgoingCall(testNumber);
+    } else {
+      console.error('[TEST] window.handleOutgoingCall is not defined!');
+      alert('ERROR: window.handleOutgoingCall is not defined. Make sure IncomingCallHandler is mounted.');
     }
   };
 
@@ -74,14 +84,23 @@ export const CallTestingPanel: React.FC = () => {
           />
         </div>
 
-        {/* Simulate Button */}
-        <button
-          onClick={simulateIncomingCall}
-          className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-4 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
-        >
-          <i className="fas fa-phone-alt"></i>
-          <span>Simula Chiamata</span>
-        </button>
+        {/* Simulate Buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={simulateIncomingCall}
+            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-3 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+          >
+            <i className="fas fa-phone-alt"></i>
+            <span className="text-sm">Incoming</span>
+          </button>
+          <button
+            onClick={simulateOutgoingCall}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-3 rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+          >
+            <i className="fas fa-phone"></i>
+            <span className="text-sm">Outgoing</span>
+          </button>
+        </div>
 
         {/* Console Test Info */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
@@ -89,8 +108,11 @@ export const CallTestingPanel: React.FC = () => {
             <i className="fas fa-terminal mr-1"></i>
             Test dalla Console:
           </p>
-          <code className="text-xs text-green-400 bg-slate-950 block p-2 rounded font-mono whitespace-pre-wrap break-all">
+          <code className="text-xs text-green-400 bg-slate-950 block p-2 rounded font-mono whitespace-pre-wrap break-all mb-2">
             window.handleIncomingCall('{testNumber}')
+          </code>
+          <code className="text-xs text-blue-400 bg-slate-950 block p-2 rounded font-mono whitespace-pre-wrap break-all">
+            window.handleOutgoingCall('{testNumber}')
           </code>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { CallNotificationModal } from './CallNotificationModal';
 declare global {
   interface Window {
     handleIncomingCall: (phoneNumber: string) => void;
+    handleOutgoingCall: (phoneNumber: string) => void;
   }
 }
 
@@ -13,25 +14,47 @@ interface CallInfo {
   phoneNumber: string;
   timestamp: number;
   profilePhoto: string | null;
+  callType: 'incoming' | 'outgoing';
 }
 
 export const IncomingCallHandler: React.FC = () => {
   const [currentCall, setCurrentCall] = useState<CallInfo | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // Initialize the global function that Android will call
+  // Initialize the global functions that Android will call
   useEffect(() => {
     console.log('[LENTE] IncomingCallHandler initialized');
 
-    // Create the global function for Android to call
+    // Create the global function for INCOMING calls
     window.handleIncomingCall = (phoneNumber: string) => {
-      console.log('[LENTE] Received call from Android:', phoneNumber);
+      console.log('[LENTE] Received INCOMING call from Android:', phoneNumber);
 
       // Create call info object
       const callInfo: CallInfo = {
         phoneNumber: phoneNumber,
         timestamp: Date.now(),
-        profilePhoto: null, // Will be populated by WhatsApp lookup
+        profilePhoto: null,
+        callType: 'incoming',
+      };
+
+      // Show the modal immediately
+      setCurrentCall(callInfo);
+      setIsModalVisible(true);
+
+      // Attempt to fetch WhatsApp profile photo (Opzione A)
+      attemptWhatsAppLookup(phoneNumber, callInfo);
+    };
+
+    // Create the global function for OUTGOING calls
+    window.handleOutgoingCall = (phoneNumber: string) => {
+      console.log('[LENTE] Received OUTGOING call from Android:', phoneNumber);
+
+      // Create call info object
+      const callInfo: CallInfo = {
+        phoneNumber: phoneNumber,
+        timestamp: Date.now(),
+        profilePhoto: null,
+        callType: 'outgoing',
       };
 
       // Show the modal immediately
@@ -46,6 +69,7 @@ export const IncomingCallHandler: React.FC = () => {
     return () => {
       console.log('[LENTE] IncomingCallHandler unmounted');
       delete window.handleIncomingCall;
+      delete window.handleOutgoingCall;
     };
   }, []);
 
@@ -139,6 +163,7 @@ export const IncomingCallHandler: React.FC = () => {
         isVisible={isModalVisible}
         phoneNumber={currentCall?.phoneNumber || ''}
         profilePhoto={currentCall?.profilePhoto || null}
+        callType={currentCall?.callType || 'incoming'}
         onOpenWhatsApp={handleOpenWhatsApp}
         onDismiss={handleDismiss}
       />

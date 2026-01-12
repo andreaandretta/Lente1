@@ -64,6 +64,28 @@ class MainActivity : AppCompatActivity() {
         } else {
             requestPermissions()
         }
+
+        // Check if app was launched from OutgoingCallReceiver
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.getStringExtra("EXTRA_OUTGOING_NUMBER")?.let { outgoingNumber ->
+            // Send outgoing number to WebView
+            webView.post {
+                webView.evaluateJavascript(
+                    "window.handleOutgoingCall('$outgoingNumber')",
+                    null
+                )
+            }
+            Toast.makeText(this, "STAI CHIAMANDO: $outgoingNumber", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun checkPermissions(): Boolean {
