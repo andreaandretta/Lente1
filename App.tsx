@@ -4,6 +4,8 @@ import { PhoneSimulator } from './components/PhoneSimulator';
 import { CodeExplorer } from './components/CodeExplorer';
 import { GeminiAIPanel } from './components/GeminiAIPanel';
 import { DeploymentGuide } from './components/DeploymentGuide';
+import { IncomingCallHandler } from './components/IncomingCallHandler';
+import { CallTestingPanel } from './components/CallTestingPanel';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'simulator' | 'code' | 'ai' | 'deploy'>('simulator');
@@ -61,6 +63,12 @@ const App: React.FC = () => {
           {activeTab === 'deploy' && <DeploymentGuide />}
         </div>
       </main>
+
+      {/* Incoming Call Handler - Always mounted to receive Android calls */}
+      <IncomingCallHandler />
+
+      {/* Call Testing Panel - Only visible in development mode */}
+      <CallTestingPanel />
 
       {/* Footer */}
       <footer className="p-6 border-t border-slate-800 bg-slate-900/30 text-center text-slate-500 text-sm">
