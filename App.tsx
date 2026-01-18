@@ -1,6 +1,10 @@
-import React from 'react';
+
+import React, { useState } from 'react';
+import { PhoneSimulator } from './components/PhoneSimulator';
+import { CodeExplorer } from './components/CodeExplorer';
+import { GeminiAIPanel } from './components/GeminiAIPanel';
+import { DeploymentGuide } from './components/DeploymentGuide';
 import { IncomingCallHandler } from './components/IncomingCallHandler';
-import { CallNotificationModal } from './components/CallNotificationModal';
 import { CallTestingPanel } from './components/CallTestingPanel';
 
 const App: React.FC = () => {
@@ -25,9 +29,16 @@ const App: React.FC = () => {
           <CallTestingPanel />
         </div>
       </main>
-      
-      <footer className="mt-12 text-slate-600 text-sm">
-        System Ready • Port 3000
+
+      {/* Incoming Call Handler - Always mounted to receive Android calls */}
+      <IncomingCallHandler />
+
+      {/* Call Testing Panel - Only visible in development mode */}
+      <CallTestingPanel />
+
+      {/* Footer */}
+      <footer className="p-6 border-t border-slate-800 bg-slate-900/30 text-center text-slate-500 text-sm">
+        <p>© 2024 LENTE Project • Built with React & Android Kotlin Best Practices</p>
       </footer>
     </div>
   );
