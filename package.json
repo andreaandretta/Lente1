@@ -1,0 +1,25 @@
+{
+  "name": "lente",
+  "version": "1.0.0",
+  "description": "LENTE - Incoming call handler and phone simulator",
+  "main": "index.tsx",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
