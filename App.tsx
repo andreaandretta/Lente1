@@ -6,6 +6,7 @@ import { GeminiAIPanel } from './components/GeminiAIPanel';
 import { DeploymentGuide } from './components/DeploymentGuide';
 import { IncomingCallHandler } from './components/IncomingCallHandler';
 import { CallTestingPanel } from './components/CallTestingPanel';
+import { CallNotificationModal } from './components/CallNotificationModal';
 
 const App: React.FC = () => {
   return (
@@ -20,21 +21,10 @@ const App: React.FC = () => {
       <main className="w-full max-w-md bg-slate-800 rounded-xl p-6 shadow-2xl border border-slate-700">
         <h2 className="text-xl font-semibold mb-4 border-b border-slate-600 pb-2">Pannello di Controllo</h2>
         
-        {/* I COMPONENTI REALI */}
         <IncomingCallHandler />
         <CallNotificationModal />
-        
-        {/* QUESTO DEVE ESSERE VISIBILE SEMPRE */}
-        <div className="mt-4">
-          <CallTestingPanel />
-        </div>
+        <CallTestingPanel />
       </main>
-
-      {/* Incoming Call Handler - Always mounted to receive Android calls */}
-      <IncomingCallHandler />
-
-      {/* Call Testing Panel - Only visible in development mode */}
-      <CallTestingPanel />
 
       {/* Footer */}
       <footer className="p-6 border-t border-slate-800 bg-slate-900/30 text-center text-slate-500 text-sm">
