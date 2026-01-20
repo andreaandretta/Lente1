@@ -18,6 +18,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
+import android.os.Build
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -67,6 +68,14 @@ class MainActivity : AppCompatActivity() {
 
         // Check if app was launched from OutgoingCallReceiver
         handleIntent(intent)
+
+        // Start foreground service to keep call monitoring alive
+        val serviceIntent = Intent(this, CallService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
