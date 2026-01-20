@@ -1,19 +1,27 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 
 export default defineConfig({
+  plugins: [
+    react(),
+    legacy({
+      targets: ['defaults', 'not IE 11', 'Android >= 9'],
+    }),
+  ],
   base: './',
-  plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: false,
+    strictPort: true,
     hmr: {
       clientPort: 443
     },
     watch: {
-      usePolling: true,
-      interval: 1000
+      usePolling: true
     }
+  },
+  build: {
+    target: 'es2015'
   }
 })
