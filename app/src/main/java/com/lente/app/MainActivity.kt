@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
                 super.onCallStateChanged(state, phoneNumber)
                 when (state) {
                     TelephonyManager.CALL_STATE_RINGING -> {
+                        Toast.makeText(this@MainActivity, "LENTE: Squillo rilevato!", Toast.LENGTH_LONG).show()
                         // Check for READ_CALL_LOG permission (required on Android 9+)
                         val hasCallLogPermission = ContextCompat.checkSelfPermission(
                             this@MainActivity,

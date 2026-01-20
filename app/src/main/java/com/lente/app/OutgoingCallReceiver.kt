@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 
 /**
  * OutgoingCallReceiver - Intercetta le chiamate in USCITA
@@ -15,6 +16,7 @@ import android.util.Log
  */
 class OutgoingCallReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        Toast.makeText(context, "LENTE: Intercettazione partita!", Toast.LENGTH_LONG).show()
         if (intent.action == Intent.ACTION_NEW_OUTGOING_CALL) {
             // Estrai il numero dalla chiamata in uscita
             val phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER)
