@@ -20,6 +20,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
 import android.os.Build
+import android.view.WindowManager
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -29,6 +30,18 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Ensure activity shows over lock screen and turns screen on
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            )
+        }
 
         webView = WebView(this)
         setContentView(webView)
@@ -105,6 +118,16 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             Toast.makeText(this, "STAI CHIAMANDO: $outgoingNumber", Toast.LENGTH_SHORT).show()
+        }
+        intent?.getStringExtra("EXTRA_INCOMING_NUMBER")?.let { incomingNumber ->
+            // Send incoming number to WebView
+            webView.post {
+                webView.evaluateJavascript(
+                    "window.handleIncomingCall('$incomingNumber')",
+                    null
+                )
+            }
+            Toast.makeText(this, "CHIAMATA DA: $incomingNumber", Toast.LENGTH_SHORT).show()
         }
     }
 

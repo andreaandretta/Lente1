@@ -24,9 +24,12 @@ class OutgoingCallReceiver : BroadcastReceiver() {
             Log.d("LENTE", "Outgoing call detected: $phoneNumber")
 
             if (!phoneNumber.isNullOrEmpty()) {
-                // Lancia MainActivity con il numero
+                // Lancia MainActivity con il numero e portala in primo piano
                 val launchIntent = Intent(context, MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP
                     putExtra("EXTRA_OUTGOING_NUMBER", phoneNumber)
                 }
                 context.startActivity(launchIntent)

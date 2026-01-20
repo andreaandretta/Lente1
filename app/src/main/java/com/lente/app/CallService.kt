@@ -115,13 +115,17 @@ class CallService : Service() {
                 super.onCallStateChanged(state, phoneNumber)
                 when (state) {
                     TelephonyManager.CALL_STATE_RINGING -> {
-                        // Relay incoming number to UI if available
-                        if (!phoneNumber.isNullOrEmpty()) {
-                            val uiIntent = Intent(this@CallService, MainActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        // Relay incoming number to UI if available and bring app to foreground
+                        val uiIntent = Intent(this@CallService, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                                    Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            if (!phoneNumber.isNullOrEmpty()) {
+                                putExtra("EXTRA_INCOMING_NUMBER", phoneNumber)
                             }
-                            startActivity(uiIntent)
                         }
+                        startActivity(uiIntent)
                     }
                 }
             }
