@@ -20,10 +20,21 @@ interface CallInfo {
 export const IncomingCallHandler: React.FC = () => {
   const [currentCall, setCurrentCall] = useState<CallInfo | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [serviceRunning, setServiceRunning] = useState<boolean>(false);
 
   // Initialize the global functions that Android will call
   useEffect(() => {
     console.log('[LENTE] IncomingCallHandler initialized');
+
+    // Query service status from Android bridge if available
+    try {
+      if (window.LenteBridge && typeof window.LenteBridge.isServiceRunning === 'function') {
+        const status = window.LenteBridge.isServiceRunning();
+        setServiceRunning(Boolean(status));
+      }
+    } catch (e) {
+      console.warn('[LENTE] LenteBridge not available in this environment');
+    }
 
     // Create the global function for INCOMING calls
     window.handleIncomingCall = (phoneNumber: string) => {
@@ -156,6 +167,30 @@ export const IncomingCallHandler: React.FC = () => {
     setCurrentCall(null);
   };
 
+  const handleStartService = () => {
+    if (window.LenteBridge && typeof window.LenteBridge.startCallService === 'function') {
+      window.LenteBridge.startCallService();
+      setTimeout(() => {
+        try {
+          const status = window.LenteBridge!.isServiceRunning();
+          setServiceRunning(Boolean(status));
+        } catch (e) {}
+      }, 500);
+    }
+  };
+
+  const handleStopService = () => {
+    if (window.LenteBridge && typeof window.LenteBridge.stopCallService === 'function') {
+      window.LenteBridge.stopCallService();
+      setTimeout(() => {
+        try {
+          const status = window.LenteBridge!.isServiceRunning();
+          setServiceRunning(Boolean(status));
+        } catch (e) {}
+      }, 500);
+    }
+  };
+
   return (
     <>
       {/* Modale per la chiamata */}
@@ -175,6 +210,24 @@ export const IncomingCallHandler: React.FC = () => {
           Call Handler Active
         </div>
       )}
+
+      {/* Foreground Service status and controls */}
+      <div className="fixed bottom-4 right-4 bg-slate-900 border border-indigo-600 rounded-2xl shadow-2xl p-4 z-50">
+        <div className="flex items-center gap-2 mb-3">
+          <span className={`text-xl ${serviceRunning ? 'text-green-400' : 'text-red-400'}`}>{serviceRunning ? '✅' : '❌'}</span>
+          <span className="text-white text-sm font-semibold">Service Running</span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={handleStartService}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded-lg"
+          >Start</button>
+          <button
+            onClick={handleStopService}
+            className="bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-lg"
+          >Stop</button>
+        </div>
+      </div>
     </>
   );
 };

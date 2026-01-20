@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.JavascriptInterface
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import android.Manifest
@@ -23,6 +24,7 @@ import android.os.Build
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private val PHONE_STATE_PERMISSION_REQUEST_CODE = 101
+    private val NOTIFICATION_PERMISSION_REQUEST_CODE = 102
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +32,9 @@ class MainActivity : AppCompatActivity() {
 
         webView = WebView(this)
         setContentView(webView)
+
+        // Set global application context for JS bridge
+        AppContextHolder.appContext = applicationContext
 
         webView.webViewClient = WebViewClient()
 
@@ -43,6 +48,9 @@ class MainActivity : AppCompatActivity() {
             setSupportZoom(false)
             cacheMode = WebSettings.LOAD_DEFAULT
         }
+
+        // Expose JS bridge to control foreground service from UI
+        webView.addJavascriptInterface(LenteBridge(), "LenteBridge")
 
         // Handle back button for WebView navigation
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -65,6 +73,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             requestPermissions()
         }
+
+        // Request notification permission on Android 13+
+        requestNotificationPermissionIfNeeded()
 
         // Check if app was launched from OutgoingCallReceiver
         handleIntent(intent)
@@ -118,8 +129,21 @@ class MainActivity : AppCompatActivity() {
                 }
                 return
             }
+            NOTIFICATION_PERMISSION_REQUEST_CODE -> {
+                // No-op; if denied, foreground notifications may be limited on Android 13+
+                return
+            }
             else -> {
                 // Ignore all other requests.
+            }
+        }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            val hasPost = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!hasPost) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_REQUEST_CODE)
             }
         }
     }
@@ -170,4 +194,36 @@ class MainActivity : AppCompatActivity() {
         }
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
     }
+}
+
+// JavaScript interface for WebView to control the foreground service
+class LenteBridge : Any() {
+    @JavascriptInterface
+    fun startCallService() {
+        // Use application context to avoid leaking activity
+        val ctx = AppContextHolder.appContext ?: return
+        val intent = Intent(ctx, CallService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ctx.startForegroundService(intent)
+        } else {
+            ctx.startService(intent)
+        }
+    }
+
+    @JavascriptInterface
+    fun stopCallService() {
+        val ctx = AppContextHolder.appContext ?: return
+        val intent = Intent(ctx, CallService::class.java)
+        ctx.stopService(intent)
+    }
+
+    @JavascriptInterface
+    fun isServiceRunning(): Boolean {
+        return CallService.isRunning
+    }
+}
+
+// Helper to provide application context in JS bridge
+object AppContextHolder {
+    var appContext: Context? = null
 }

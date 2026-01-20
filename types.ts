@@ -11,3 +11,15 @@ export interface ContactInfo {
   name: string;
   photoUrl: string;
 }
+
+declare global {
+  interface Window {
+    LenteBridge?: {
+      startCallService: () => void;
+      stopCallService: () => void;
+      isServiceRunning: () => boolean;
+    };
+    handleIncomingCall?: (phoneNumber: string) => void;
+    handleOutgoingCall?: (phoneNumber: string) => void;
+  }
+}

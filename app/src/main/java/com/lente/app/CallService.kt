@@ -15,6 +15,10 @@ import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 
 class CallService : Service() {
+    companion object {
+        @Volatile
+        var isRunning: Boolean = false
+    }
     private val channelId = "lente_call_service_channel"
     private val notificationId = 1001
 
@@ -28,6 +32,8 @@ class CallService : Service() {
         createNotificationChannel()
         val notification = buildPersistentNotification()
         startForeground(notificationId, notification)
+
+        isRunning = true
 
         // Register dynamic receivers/listeners to keep monitoring even if app is backgrounded
         registerOutgoingCallReceiver()
@@ -57,6 +63,8 @@ class CallService : Service() {
         phoneStateListener = null
         outgoingReceiver = null
         telephonyManager = null
+
+        isRunning = false
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
