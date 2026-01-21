@@ -21,6 +21,7 @@ import android.content.IntentFilter
 import android.content.BroadcastReceiver
 import android.os.Build
 import android.view.WindowManager
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -32,15 +33,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Ensure activity shows over lock screen and turns screen on
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-            )
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+                setTurnScreenOn(true)
+            } else {
+                @Suppress("DEPRECATION")
+                window.addFlags(
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("LENTE", "Wake failed", e)
         }
 
         webView = WebView(this)
