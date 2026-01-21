@@ -1,3 +1,4 @@
+
 package com.lente.app
 
 import android.annotation.SuppressLint
@@ -22,6 +23,9 @@ import android.content.BroadcastReceiver
 import android.os.Build
 import android.view.WindowManager
 import android.util.Log
+import android.webkit.WebResourceRequest
+import android.net.Uri
+import android.content.ActivityNotFoundException
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
@@ -54,8 +58,36 @@ class MainActivity : AppCompatActivity() {
         // Set global application context for JS bridge
         AppContextHolder.appContext = applicationContext
 
-        webView.webViewClient = WebViewClient()
-
+        webView.webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                                            val url = request?.url?.toString() ?: return false
+                                                            
+                                                                            // Intercept external URLs (WhatsApp, tel:, mailto:, etc.)
+                                                                                            if (url.startsWith("https://wa.me/") || 
+                                                                                                                url.startsWith("whatsapp://") ||
+                                                                                                                                    url.startsWith("tel:") ||
+                                                                                                                                                        url.startsWith("mailto:")) {
+                                                                                                                                                                                
+                                                                                                                                                                                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                                                                                                                                                                                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                try {
+                                                                                                                                                                                                                                                                                            startActivity(intent)
+                                                                                                                                                                                                                                                                } catch (e: ActivityNotFoundException) {
+                                                                                                                                                                                                                                                                                            // WhatsApp not installed - fallback to browser
+                                                                                                                                                                                                                                                                                                                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                    return true  // Prevent WebView from loading the URL
+                                                                                                                                                        }
+                                                                                                                                                                        
+                                                                                                                                                                                        return false  // Let WebView load internal URLs
+                        }
+        }
+                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                }
+                                                                                                                                                        })
+                        }
+        }
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true

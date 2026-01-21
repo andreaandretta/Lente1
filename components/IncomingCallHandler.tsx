@@ -152,6 +152,7 @@ export const IncomingCallHandler: React.FC = () => {
 
     // Su Android WebView, questo aprirà l'app WhatsApp se installata
     // Altrimenti aprirà WhatsApp Web nel browser
+
     window.open(whatsappUrl, '_blank');
 
     // Opzionale: chiudi il modale dopo aver aperto WhatsApp
